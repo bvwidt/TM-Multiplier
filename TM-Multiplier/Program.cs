@@ -10,7 +10,7 @@ namespace TM_Multiplier
     {
         static void Main(string[] args)
         {
-
+            new Multiplier("111x10");
         }
     }
 }
