@@ -50,14 +50,20 @@
         public void PrintTapeWithState()
         {
             StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < this.tape.Count; i++)
+
+            // Use <= so the state identifier is also printend when
+            // it is at the end of the tape content
+            for (int i = 0; i <= this.tape.Count; i++)
             {
                 if (i == this.currentState.Position)
                 {
                     stringBuilder.Append(State.StateIdentifier);
                 }
 
-                stringBuilder.Append(this.tape[i]);
+                if (i >= 0 && i < this.tape.Count)
+                {
+                    stringBuilder.Append(this.tape[i]);
+                }
             }
 
             Console.WriteLine(stringBuilder);
@@ -95,7 +101,7 @@
         public void Calculate()
         {
             // 1. Skip first binary number
-            this.GoRightUntilX();
+            this.GoRightUntil('x');
 
             // 2. Read "x", write "x", go left
             this.GoLeft();
@@ -105,18 +111,13 @@
             ReplaceTapeChar(this.currentState.Position, 'd');
             if (readChar == 0)
             {
-                // Go right and skip "x"
-                this.GoRightUntilX();
-                this.GoRight();
-                
+                // Go right to the end of the input
+                this.GoRightUntil(' ');
             }
             else if (readChar == 1)
             {
-                // Go right and skip "x"
-                this.GoRightUntilX();
-                this.GoRight();
-
-                this.CopyNumberToEmptyTape();
+                // Go right to the end of the input
+                this.GoRightUntil(' ');
             }
         }
 
@@ -193,6 +194,13 @@
         /// </example>
         private char GetCharAtPosition(int position)
         {
+            // When the current state has reached the end of the input
+            // read an empty space ' '.
+            if (position >= this.tape.Count)
+            {
+                return ' ';
+            }
+
             return this.tape[position];
         }
 
@@ -205,9 +213,9 @@
         /// Moves (the state) right until a "x"-character is found 
         /// in the first tape.
         /// </summary>
-        private void GoRightUntilX()
+        private void GoRightUntil(char character)
         {
-            while (!this.GetCharAtPosition(this.currentState.Position).Equals('x'))
+            while (!this.GetCharAtPosition(this.currentState.Position).Equals(character))
             {
                 this.GoRight();
             }
