@@ -90,7 +90,7 @@
         /// </summary>
         public void Calculate()
         {
-            
+            this.GoRightUntilX();
         }
 
         /// <summary>
@@ -98,7 +98,19 @@
         /// </summary>
         public void GoRight()
         {
-            
+            this.currentState.Position++;
+            this.currentState.TapeContent = this.GetTapeAtPosition(this.currentState.Position);
+        }
+
+        /// <summary>
+        /// Returns the content (first) tape.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="string"/> containing the content of the first tape.
+        /// </returns>
+        public string GetTapeContent()
+        {
+            return new String(this.tapes.FirstOrDefault()?.ToArray());
         }
 
         /// <summary>
@@ -144,26 +156,36 @@
         }
 
         /// <summary>
-        /// TODO
+        /// Gets the char at a given position (0-indexed) of a given tape.
         /// </summary>
-        private void GoRightUntilX()
+        /// <param name="position">
+        /// The position on the tape whose char should be returned.
+        /// </param>
+        /// <param name="tapeNumber">
+        /// The number / index of the tape that should be checked.
+        /// </param>
+        /// <returns>
+        /// A <see cref="char"/> of the tape.
+        /// </returns>
+        /// <example>
+        /// Returns the char at the position two of the first tape.
+        /// </example>
+        private char GetCharAtPosition(int position, int tapeNumber)
         {
-            while (true)
-            {
-                
-            }
-            this.GoRight();
+            char[] tape = this.GetTapeAtPosition(position).ToArray();
+            return tape[tapeNumber];
         }
 
         /// <summary>
-        /// Returns the content (first) tape.
+        /// Moves (the state) right until a "x"-character is found 
+        /// in the first tape.
         /// </summary>
-        /// <returns>
-        /// A <see cref="string"/> containing the content of the first tape.
-        /// </returns>
-        public string GetTapeContent()
+        private void GoRightUntilX()
         {
-            return new String(this.tapes.FirstOrDefault()?.ToArray());
+            while (!this.GetCharAtPosition(this.currentState.Position, 0).Equals('x'))
+            {
+                this.GoRight();
+            }
         }
     }
 }

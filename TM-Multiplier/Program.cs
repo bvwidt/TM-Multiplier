@@ -12,6 +12,8 @@ namespace TM_Multiplier
         {
             Multiplier m = new Multiplier("111x10");
             m.PrintAllTapesWithState();
+            m.Calculate();
+            m.PrintAllTapesWithState();
         }
     }
 }
