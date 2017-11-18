@@ -1,6 +1,8 @@
 ﻿namespace TM_Multiplier
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text.RegularExpressions;
 
     public class Multiplier
@@ -58,6 +60,26 @@
             }
 
             return isAccepted;
+        }
+
+        /// <summary>
+        /// Calculates the input on the first tape and 
+        /// writes the result back on the first tape.
+        /// </summary>
+        public void Calculate()
+        {
+            
+        }
+
+        /// <summary>
+        /// Returns the content (first) tape.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="string"/> containing the content of the first tape.
+        /// </returns>
+        public string GetTapeContent()
+        {
+            return new String(this.tapes.FirstOrDefault()?.ToArray());
         }
     }
 }
