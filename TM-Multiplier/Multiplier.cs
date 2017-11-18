@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
     using System.Text.RegularExpressions;
 
     public class Multiplier
@@ -15,7 +16,7 @@
         /// <summary>
         /// Because a one-tape turing machine (TM) has equal capacity as
         /// </summary>
-        private List<List<char>> tapes;
+        private List<char> tape;
 
         /// <summary>
         /// TODO
@@ -32,31 +33,34 @@
         /// </param>
         public Multiplier(string tapeContent)
         {
-            FillTape(tapeContent);
-            this.currentState = new State(0, this.GetTapeAtPosition(0));
+            // Write the input to the tape
+            this.tape = new List<char>();
+            foreach (char character in tapeContent)
+            {
+                this.tape.Add(character);
+            }
+
+            // Set the current state at the beginning of the input on the tape
+            this.currentState = new State(0, this.GetCharAtPosition(0));
         }
 
         /// <summary>
         /// TODO
         /// </summary>
-        public void PrintAllTapesWithState()
+        public void PrintTapeWithState()
         {
-            int maxTapeLength = this.tapes.Max(t => t.Count());
-
-            foreach (IEnumerable<char> t in this.tapes)
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < this.tape.Count; i++)
             {
-                char[] tape = t.ToArray();
-                for (int i = 0; i < maxTapeLength; i++)
+                if (i == this.currentState.Position)
                 {
-                    if (i == this.currentState.Position)
-                    {
-                        Console.Write(State.StateIdentifier);
-                    }
-
-                    Console.Write(tape[i]);
+                    stringBuilder.Append(State.StateIdentifier);
                 }
-                Console.WriteLine();
+
+                stringBuilder.Append(this.tape[i]);
             }
+
+            Console.WriteLine(stringBuilder);
         }
 
         /// <summary>
@@ -98,7 +102,7 @@
 
             // TODO Check for unexpected values
             int readChar = Int32.Parse(this.GetCharAtPosition(0).ToString());
-            ReplaceTapeChar(this.currentState.Position, 0, 'd');
+            ReplaceTapeChar(this.currentState.Position, 'd');
             if (readChar == 0)
             {
                 // Go right and skip "x"
@@ -128,12 +132,13 @@
         /// <summary>
         /// TODO
         /// </summary>
+        /// <param name="position"></param>
         /// <param name="newTapeChar">
         /// The new tape char.
         /// </param>
-        public void ReplaceTapeChar(int position, int tapeNumber, char newTapeChar)
+        public void ReplaceTapeChar(int position, char newTapeChar)
         {
-            this.tapes[tapeNumber][position] = newTapeChar;
+            this.tape[position] = newTapeChar;
             this.GoRight();
         }
 
@@ -154,60 +159,7 @@
         /// </returns>
         public string GetTapeContent()
         {
-            return new String(this.tapes.FirstOrDefault()?.ToArray());
-        }
-
-        /// <summary>
-        /// TODO
-        /// </summary>
-        /// <param name="tapeContent"></param>
-        private void FillTape(string tapeContent)
-        {
-            List<char> firstTape = new List<char>();
-            foreach (char character in tapeContent)
-            {
-                firstTape.Add(character);
-            }
-
-            // Add the input as the first tape
-            this.tapes = new List<List<char>>(new[] { firstTape });
-        }
-
-        /// <summary>
-        /// TODO Using current state
-        /// </summary>
-        /// <returns>
-        /// The <see cref="IEnumerable"/>.
-        /// </returns>
-        private IEnumerable<char> GetTapeAtPosition()
-        {
-            return this.GetTapeAtPosition(this.currentState.Position);
-        }
-
-        /// <summary>
-        /// TODO
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerable<char> GetTapeAtPosition(int position)
-        {
-            var currentTapeContent = new List<char>();
-
-            foreach (IEnumerable<char> tape in this.tapes)
-            {
-                try
-                {
-                    currentTapeContent.Add(tape.ToArray()[position]);
-                }
-                catch (IndexOutOfRangeException)
-                {
-                    // When in another tape nothing is found at the given
-                    // position, it means that it is empty.
-                    // An underscore is used to show that.
-                    currentTapeContent.Add('_');
-                }
-            }
-
-            return currentTapeContent;
+            return new String(this.tape.ToArray());
         }
 
         /// <summary>
@@ -219,9 +171,9 @@
         /// <returns>
         /// The <see cref="char"/>.
         /// </returns>
-        private char GetCharAtPosition(int tapeNumber)
+        private char GetCharAtPosition()
         {
-            return this.GetCharAtPosition(this.currentState.Position, tapeNumber);
+            return this.GetCharAtPosition(this.currentState.Position);
         }
 
         /// <summary>
@@ -239,15 +191,14 @@
         /// <example>
         /// Returns the char at the position two of the first tape.
         /// </example>
-        private char GetCharAtPosition(int position, int tapeNumber)
+        private char GetCharAtPosition(int position)
         {
-            char[] tape = this.GetTapeAtPosition(position).ToArray();
-            return tape[tapeNumber];
+            return this.tape[position];
         }
 
         private void RefreshCurrentStateTapeContent()
         {
-            this.currentState.TapeContent = this.GetTapeAtPosition(this.currentState.Position);
+            this.currentState.TapeChar = this.GetCharAtPosition(this.currentState.Position);
         }
 
         /// <summary>
@@ -256,7 +207,7 @@
         /// </summary>
         private void GoRightUntilX()
         {
-            while (!this.GetCharAtPosition(this.currentState.Position, 0).Equals('x'))
+            while (!this.GetCharAtPosition(this.currentState.Position).Equals('x'))
             {
                 this.GoRight();
             }

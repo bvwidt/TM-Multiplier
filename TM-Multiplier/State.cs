@@ -20,11 +20,11 @@ namespace TM_Multiplier
         /// TODO
         /// </summary>
         /// <param name="position">TODO</param>
-        /// <param name="tapeContent">TODO</param>
-        public State(int position, IEnumerable<char> tapeContent)
+        /// <param name="tapeChar">TODO</param>
+        public State(int position, char tapeChar)
         {
             this.Position = position;
-            this.TapeContent = tapeContent;
+            this.TapeChar = tapeChar;
         }
 
         /// <summary>
@@ -33,9 +33,8 @@ namespace TM_Multiplier
         public int Position { get; set; }
 
         /// <summary>
-        /// Gets or sets the tape content at the given position. 
-        /// It contains a char for each tape that has content at the position.
+        /// Gets or sets the tape character at the given position.
         /// </summary>
-        public IEnumerable<char> TapeContent { get; set; }
+        public char TapeChar { get; set; }
     }
 }
