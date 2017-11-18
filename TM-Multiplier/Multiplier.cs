@@ -90,7 +90,29 @@
         /// </summary>
         public void Calculate()
         {
+            // 1. Skip first binary number
             this.GoRightUntilX();
+
+            // 2. Read "x", write "x", go left
+            this.GoLeft();
+
+            // TODO Check for unexpected values
+            int readChar = Int32.Parse(this.GetCharAtPosition(0).ToString());
+            if (readChar == 0)
+            {
+                // Go right and skip "x"
+                this.GoRightUntilX();
+                this.GoRight();
+                
+            }
+            else if (readChar == 1)
+            {
+                // Go right and skip "x"
+                this.GoRightUntilX();
+                this.GoRight();
+
+                this.CopyNumberToEmptyTape();
+            }
         }
 
         /// <summary>
@@ -99,7 +121,16 @@
         public void GoRight()
         {
             this.currentState.Position++;
-            this.currentState.TapeContent = this.GetTapeAtPosition(this.currentState.Position);
+            this.RefreshCurrentStateTapeContent();
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        public void GoLeft()
+        {
+            this.currentState.Position--;
+            this.RefreshCurrentStateTapeContent();
         }
 
         /// <summary>
@@ -130,6 +161,17 @@
         }
 
         /// <summary>
+        /// TODO Using current state
+        /// </summary>
+        /// <returns>
+        /// The <see cref="IEnumerable"/>.
+        /// </returns>
+        private IEnumerable<char> GetTapeAtPosition()
+        {
+            return this.GetTapeAtPosition(this.currentState.Position);
+        }
+
+        /// <summary>
         /// TODO
         /// </summary>
         /// <returns></returns>
@@ -156,6 +198,20 @@
         }
 
         /// <summary>
+        /// TODO Using current state
+        /// </summary>
+        /// <param name="tapeNumber">
+        /// The tape number.
+        /// </param>
+        /// <returns>
+        /// The <see cref="char"/>.
+        /// </returns>
+        private char GetCharAtPosition(int tapeNumber)
+        {
+            return this.GetCharAtPosition(this.currentState.Position, tapeNumber);
+        }
+
+        /// <summary>
         /// Gets the char at a given position (0-indexed) of a given tape.
         /// </summary>
         /// <param name="position">
@@ -176,6 +232,11 @@
             return tape[tapeNumber];
         }
 
+        private void RefreshCurrentStateTapeContent()
+        {
+            this.currentState.TapeContent = this.GetTapeAtPosition(this.currentState.Position);
+        }
+
         /// <summary>
         /// Moves (the state) right until a "x"-character is found 
         /// in the first tape.
@@ -186,6 +247,21 @@
             {
                 this.GoRight();
             }
+        }
+
+        private void GoLeftUntilDigit()
+        {
+            // TODO Read "d" until the next decimal is reached to read
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <exception cref="NotImplementedException">
+        /// </exception>
+        private void CopyNumberToEmptyTape()
+        {
+            throw new NotImplementedException();
         }
     }
 }
