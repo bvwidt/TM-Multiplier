@@ -18,6 +18,11 @@
         private IEnumerable<IEnumerable<char>> tapes;
 
         /// <summary>
+        /// TODO
+        /// </summary>
+        private State currentState;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Multiplier"/> class 
         /// and writes each digit (and the x) on the tape.
         /// </summary>
@@ -27,14 +32,31 @@
         /// </param>
         public Multiplier(string tapeContent)
         {
-            List<char> firstTape = new List<char>();
-            foreach (char character in tapeContent)
-            {
-                firstTape.Add(character);
-            }
+            FillTape(tapeContent);
+            this.currentState = new State(0, this.GetTapeAtPosition(0));
+        }
 
-            // Add the input as the first tape
-            this.tapes = new List<IEnumerable<char>>(new[] { new List<char>(firstTape) });
+        /// <summary>
+        /// TODO
+        /// </summary>
+        public void PrintAllTapesWithState()
+        {
+            int maxTapeLength = this.tapes.Max(t => t.Count());
+
+            foreach (IEnumerable<char> t in this.tapes)
+            {
+                char[] tape = t.ToArray();
+                for (int i = 0; i < maxTapeLength; i++)
+                {
+                    if (i == this.currentState.Position)
+                    {
+                        Console.Write(State.StateIdentifier);
+                    }
+
+                    Console.Write(tape[i]);
+                }
+                Console.WriteLine();
+            }
         }
 
         /// <summary>
@@ -69,6 +91,68 @@
         public void Calculate()
         {
             
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        public void GoRight()
+        {
+            
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="tapeContent"></param>
+        private void FillTape(string tapeContent)
+        {
+            List<char> firstTape = new List<char>();
+            foreach (char character in tapeContent)
+            {
+                firstTape.Add(character);
+            }
+
+            // Add the input as the first tape
+            this.tapes = new List<IEnumerable<char>>(new[] { new List<char>(firstTape) });
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerable<char> GetTapeAtPosition(int position)
+        {
+            var currentTapeContent = new List<char>();
+
+            foreach (IEnumerable<char> tape in this.tapes)
+            {
+                try
+                {
+                    currentTapeContent.Add(tape.ToArray()[position]);
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    // When in another tape nothing is found at the given
+                    // position, it means that it is empty.
+                    // An underscore is used to show that.
+                    currentTapeContent.Add('_');
+                }
+            }
+
+            return currentTapeContent;
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        private void GoRightUntilX()
+        {
+            while (true)
+            {
+                
+            }
+            this.GoRight();
         }
 
         /// <summary>
