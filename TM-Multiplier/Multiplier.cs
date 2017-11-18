@@ -15,12 +15,12 @@
         /// <summary>
         /// Because a one-tape turing machine (TM) has equal capacity as
         /// </summary>
-        private IEnumerable<IEnumerable<char>> tapes;
+        private List<List<char>> tapes;
 
         /// <summary>
         /// TODO
         /// </summary>
-        private State currentState;
+        private readonly State currentState;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Multiplier"/> class 
@@ -98,6 +98,7 @@
 
             // TODO Check for unexpected values
             int readChar = Int32.Parse(this.GetCharAtPosition(0).ToString());
+            ReplaceTapeChar(this.currentState.Position, 0, 'd');
             if (readChar == 0)
             {
                 // Go right and skip "x"
@@ -122,6 +123,18 @@
         {
             this.currentState.Position++;
             this.RefreshCurrentStateTapeContent();
+        }
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="newTapeChar">
+        /// The new tape char.
+        /// </param>
+        public void ReplaceTapeChar(int position, int tapeNumber, char newTapeChar)
+        {
+            this.tapes[tapeNumber][position] = newTapeChar;
+            this.GoRight();
         }
 
         /// <summary>
@@ -157,7 +170,7 @@
             }
 
             // Add the input as the first tape
-            this.tapes = new List<IEnumerable<char>>(new[] { new List<char>(firstTape) });
+            this.tapes = new List<List<char>>(new[] { firstTape });
         }
 
         /// <summary>
@@ -261,7 +274,7 @@
         /// </exception>
         private void CopyNumberToEmptyTape()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }
