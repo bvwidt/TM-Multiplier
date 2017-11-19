@@ -117,6 +117,9 @@
             // 2. Read "x", write "x", go left
             this.GoLeft();
 
+            // 3. Multiply (/copy) second number (/ factor) with each
+            // digit of the first number (/ factor) with 
+            // correct tenner multiplicity
             char readChar = this.GetCharAtPosition();
             do
             {
@@ -135,6 +138,11 @@
                 readChar = this.GetCharAtPosition();
             }
             while (!readChar.Equals(' '));
+
+            // 4. Replace "z" and "s" by 0
+            // E.g. ...yss110y... ==> ...y11000y...
+            this.GoRight();
+            this.CorrectTennerPlaceHolders();
         }
 
         /// <summary>
@@ -394,6 +402,42 @@
             {
                 this.GoLeft(readChar.Equals('a') ? '0' : '1');
                 readChar = this.GetCharAtPosition();
+            }
+        }
+
+        /// <summary>
+        /// Replaces "z" and "s" by 0 and moves it to the end 
+        /// of the corresponding number each copied number. 
+        /// </summary>
+        /// <example>...yss110y... ==> ...y11000y...</example>
+        private void CorrectTennerPlaceHolders()
+        {
+            // Read the first character after the y
+            // If it is an s (tenner multiplier), move the number one left and 
+            // append an 0.
+            this.GoRightUntil(new[] { 'y', ' ' });
+            char readChar = this.GetCharAtPosition();
+            if (readChar.Equals('y'))
+            {
+                this.GoRight();
+                readChar = this.GetCharAtPosition();
+                while (readChar.Equals('s'))
+                {
+                    this.GoRightUntil('y');
+                    this.GoLeft();
+                    readChar = this.GetCharAtPosition();
+                    this.GoLeft('0');
+                    while (readChar.Equals('0') || readChar.Equals('1'))
+                    {
+                        char newReadChar = this.GetCharAtPosition();
+                        this.GoLeft(readChar);
+                        readChar = newReadChar;
+                    }
+                    readChar = this.GetCharAtPosition();
+                    //this.GoLeft(readChar);
+                }
+
+                this.CorrectTennerPlaceHolders();
             }
         }
     }
