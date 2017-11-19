@@ -51,19 +51,27 @@
         {
             StringBuilder stringBuilder = new StringBuilder();
 
-            // Use <= so the state identifier is also printend when
-            // it is at the end of the tape content
-            for (int i = 0; i <= this.tape.Count; i++)
+            // Print the current state at the start
+            if (this.currentState.Position < 0)
             {
+                stringBuilder.Append(State.StateIdentifier);
+            }
+            
+            for (int i = 0; i < this.tape.Count; i++)
+            {
+                // Print the current state somewhere on the tape content
                 if (i == this.currentState.Position)
                 {
                     stringBuilder.Append(State.StateIdentifier);
                 }
 
-                if (i >= 0 && i < this.tape.Count)
-                {
-                    stringBuilder.Append(this.tape[i]);
-                }
+                stringBuilder.Append(this.tape[i]);
+            }
+
+            // Print the current state at the end
+            if (this.currentState.Position >= this.tape.Count)
+            {
+                stringBuilder.Append(State.StateIdentifier);
             }
 
             Console.WriteLine(stringBuilder);
@@ -101,7 +109,7 @@
         public void Calculate()
         {
             // Append an y to identify when the input ends
-            AppendY();
+            this.AppendY();
 
             // 1. Skip first binary number
             this.GoRightUntil('x');
@@ -123,7 +131,8 @@
             {
                 this.CopySecondFactor();
             }
-            this.GoLeftUntil(new[] { '0', '1' });
+
+            this.GoLeftUntil(new[] { '0', '1', ' ' });
         }
 
         /// <summary>
