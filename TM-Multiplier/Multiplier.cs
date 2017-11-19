@@ -11,7 +11,7 @@
         /// <summary>
         /// The regular expression that the given word must satisfy.
         /// </summary>
-        private const string AcceptanceRegex = "1[0-1]*x1[0-1]*";
+        private const string AcceptanceRegex = "[0-1]*x[0-1]*";
 
         /// <summary>
         /// Because a one-tape turing machine (TM) has equal capacity as
@@ -117,22 +117,24 @@
             // 2. Read "x", write "x", go left
             this.GoLeft();
 
-            // TODO Check for unexpected values
             char readChar = this.GetCharAtPosition();
-            this.GoRight('d');
-            if (readChar.Equals('0'))
+            do
             {
-                // Go right to the end of the input
-                this.GoRightUntil(' ');
-                this.GoLeft('z');
-                this.GoLeftUntil('x');
+                this.GoRight('d');
+                if (readChar.Equals('0'))
+                {
+                    // Go right to the end of the input
+                    this.AppendZ();
+                    this.GoLeftUntil('x');
+                }
+                else if (readChar.Equals('1'))
+                {
+                    this.CopySecondFactor();
+                }
+                this.GoLeftUntil(new[] { '0', '1', ' ' });
+                readChar = this.GetCharAtPosition();
             }
-            else if (readChar.Equals('1'))
-            {
-                this.CopySecondFactor();
-            }
-
-            this.GoLeftUntil(new[] { '0', '1', ' ' });
+            while (!readChar.Equals(' '));
         }
 
         /// <summary>
@@ -159,6 +161,15 @@
         public void GoRightUntil(char character)
         {
             while (!this.GetCharAtPosition(this.currentState.Position).Equals(character))
+            {
+                this.GoRight();
+            }
+        }
+
+        public void GoRightUntil(IEnumerable<char> characters)
+        {
+            char[] chars = characters.ToArray();
+            while (!chars.Contains(this.GetCharAtPosition()))
             {
                 this.GoRight();
             }
@@ -207,6 +218,11 @@
             {
                 this.GoLeft();
             }
+        }
+
+        private void ReplaceTapeChar(char newTapeChar)
+        {
+            ReplaceTapeChar(this.currentState.Position, newTapeChar);
         }
 
         /// <summary>
@@ -299,6 +315,18 @@
             this.GoLeftUntil(' ');
         }
 
+        private void AppendZ()
+        {
+            this.GoRightUntil(new[] { 'z', ' ' });
+            char readChar = this.GetCharAtPosition();
+            while (readChar.Equals('z'))
+            {
+                this.GoRight('z');
+                readChar = this.GetCharAtPosition();
+            }
+            this.ReplaceTapeChar('z');
+        }
+
         private void CopySecondFactor()
         {
             // Go right until the 'x' and skip it
@@ -319,7 +347,43 @@
             }
             while (readChar.Equals('0') || readChar.Equals('1'));
 
+            // Move to the end and mark it with an "y"
+            // then return to next left "y"
+            this.GoRightUntil(' ');
+            this.GoLeft('y');
+            this.GoLeftUntil('y');
+
+            this.Append10Multiplicity();
             this.ResetSecondFactor();
+        }
+
+        private void Append10Multiplicity()
+        {
+            this.GoRight();
+            this.GoRightUntil(new[] { 'z', 's', 'y' });
+            char readChar = this.GetCharAtPosition();
+            if (readChar.Equals('z'))
+            {
+                this.GoRight('s');
+                this.GoRightUntil(' ');
+                this.GoLeft('z');
+
+                // Go left to the y after next
+                this.GoLeftUntil('y');
+                this.GoLeft();
+                this.GoLeftUntil('y');
+                this.Append10Multiplicity();
+            }
+            else if (readChar.Equals('s'))
+            {
+                // Skip read "s" and search for next "z"
+                this.Append10Multiplicity();
+            }
+            else
+            {
+                this.GoRightUntil(' ');
+                this.ReplaceTapeChar('z');
+            }
         }
 
         private void ResetSecondFactor()
