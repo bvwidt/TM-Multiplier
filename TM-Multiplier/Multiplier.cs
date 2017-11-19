@@ -11,7 +11,7 @@
         /// <summary>
         /// The regular expression that the given word must satisfy.
         /// </summary>
-        private const string AcceptanceRegex = "[0-1]+x[0-1]+";
+        private const string AcceptanceRegex = "1[0-1]*x1[0-1]*";
 
         /// <summary>
         /// Because a one-tape turing machine (TM) has equal capacity as
@@ -100,6 +100,9 @@
         /// </summary>
         public void Calculate()
         {
+            // Append an y to identify when the input ends
+            AppendY();
+
             // 1. Skip first binary number
             this.GoRightUntil('x');
 
@@ -107,27 +110,94 @@
             this.GoLeft();
 
             // TODO Check for unexpected values
-            int readChar = Int32.Parse(this.GetCharAtPosition(0).ToString());
-            ReplaceTapeChar(this.currentState.Position, 'd');
-            if (readChar == 0)
+            char readChar = this.GetCharAtPosition();
+            this.GoRight('d');
+            if (readChar.Equals('0'))
             {
                 // Go right to the end of the input
                 this.GoRightUntil(' ');
+                this.GoLeft('z');
+                this.GoLeftUntil('x');
             }
-            else if (readChar == 1)
+            else if (readChar.Equals('1'))
             {
-                // Go right to the end of the input
-                this.GoRightUntil(' ');
+                this.CopySecondFactor();
             }
+            this.GoLeftUntil(new[] { '0', '1' });
         }
 
         /// <summary>
-        /// TODO
+        /// Moves the current state one character right.
         /// </summary>
         public void GoRight()
         {
             this.currentState.Position++;
             this.RefreshCurrentStateTapeContent();
+        }
+
+        public void GoRight(char newTapeChar)
+        {
+            ReplaceTapeChar(this.currentState.Position, newTapeChar);
+            this.GoRight();
+        }
+
+        /// <summary>
+        /// Moves (the state) right until a the given character is found.
+        /// </summary>
+        /// <param name="character">
+        /// The character that stops the moving.
+        /// </param>
+        public void GoRightUntil(char character)
+        {
+            while (!this.GetCharAtPosition(this.currentState.Position).Equals(character))
+            {
+                this.GoRight();
+            }
+        }
+
+        /// <summary>
+        /// Moves the current state one character left.
+        /// </summary>
+        public void GoLeft()
+        {
+            this.currentState.Position--;
+            this.RefreshCurrentStateTapeContent();
+        }
+
+        public void GoLeft(char newTapeChar)
+        {
+            ReplaceTapeChar(this.currentState.Position, newTapeChar);
+            this.GoLeft();
+        }
+
+        /// <summary>
+        /// Moves (the state) left until the given character is found.
+        /// </summary>
+        /// <param name="character">
+        /// The character that stops the moving.
+        /// </param>
+        public void GoLeftUntil(char character)
+        {
+            while (!this.GetCharAtPosition().Equals(character))
+            {
+                this.GoLeft();
+            }
+        }
+
+        /// <summary>
+        /// Moves (the state) left until a character of 
+        /// the given ones is found.
+        /// </summary>
+        /// <param name="characters">
+        /// A collection containing characters that stops the moving.
+        /// </param>
+        public void GoLeftUntil(IEnumerable<char> characters)
+        {
+            char[] chars = characters.ToArray();
+            while (!chars.Contains(this.GetCharAtPosition()))
+            {
+                this.GoLeft();
+            }
         }
 
         /// <summary>
@@ -137,19 +207,16 @@
         /// <param name="newTapeChar">
         /// The new tape char.
         /// </param>
-        public void ReplaceTapeChar(int position, char newTapeChar)
+        private void ReplaceTapeChar(int position, char newTapeChar)
         {
-            this.tape[position] = newTapeChar;
-            this.GoRight();
-        }
-
-        /// <summary>
-        /// TODO
-        /// </summary>
-        public void GoLeft()
-        {
-            this.currentState.Position--;
-            this.RefreshCurrentStateTapeContent();
+            if (position >= this.tape.Count)
+            {
+                this.tape.Add(newTapeChar);
+            }
+            else
+            {
+                this.tape[position] = newTapeChar;
+            }
         }
 
         /// <summary>
@@ -196,7 +263,7 @@
         {
             // When the current state has reached the end of the input
             // read an empty space ' '.
-            if (position >= this.tape.Count)
+            if (position < 0 || position >= this.tape.Count)
             {
                 return ' ';
             }
@@ -204,36 +271,57 @@
             return this.tape[position];
         }
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         private void RefreshCurrentStateTapeContent()
         {
             this.currentState.TapeChar = this.GetCharAtPosition(this.currentState.Position);
         }
 
         /// <summary>
-        /// Moves (the state) right until a "x"-character is found 
-        /// in the first tape.
+        /// Appends an 'y' at the end of the tape content and 
+        /// returns (current state) to the start of the tape content.
         /// </summary>
-        private void GoRightUntil(char character)
+        private void AppendY()
         {
-            while (!this.GetCharAtPosition(this.currentState.Position).Equals(character))
+            this.GoRightUntil(' ');
+            this.GoLeft('y');
+            this.GoLeftUntil(' ');
+        }
+
+        private void CopySecondFactor()
+        {
+            // Go right until the 'x' and skip it
+            this.GoRightUntil('x');
+            this.GoRight();
+
+            // Use do-while because the second factor is always at minimum 0
+            // given by the accepted language of the TM
+            char readChar = this.GetCharAtPosition();
+            do
             {
+                this.GoRight(readChar.Equals('0') ? 'a' : 'b');
+                this.GoRightUntil(' ');
+                this.GoLeft(readChar);
+                this.GoLeftUntil(new[] { 'a', 'b' });
                 this.GoRight();
+                readChar = this.GetCharAtPosition();
             }
+            while (readChar.Equals('0') || readChar.Equals('1'));
+
+            this.ResetSecondFactor();
         }
 
-        private void GoLeftUntilDigit()
+        private void ResetSecondFactor()
         {
-            // TODO Read "d" until the next decimal is reached to read
-        }
-
-        /// <summary>
-        /// TODO
-        /// </summary>
-        /// <exception cref="NotImplementedException">
-        /// </exception>
-        private void CopyNumberToEmptyTape()
-        {
-            
+            this.GoLeftUntil(new[] { 'a', 'b' });
+            char readChar = this.GetCharAtPosition();
+            while (readChar.Equals('a') || readChar.Equals('b'))
+            {
+                this.GoLeft(readChar.Equals('a') ? '0' : '1');
+                readChar = this.GetCharAtPosition();
+            }
         }
     }
 }
