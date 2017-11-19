@@ -143,6 +143,9 @@
             // E.g. ...yss110y... ==> ...y11000y...
             this.GoRight();
             this.CorrectTennerPlaceHolders();
+
+            // 5. Remove input
+            RemoveInput();
         }
 
         /// <summary>
@@ -434,11 +437,34 @@
                         readChar = newReadChar;
                     }
                     readChar = this.GetCharAtPosition();
-                    //this.GoLeft(readChar);
                 }
 
                 this.CorrectTennerPlaceHolders();
             }
+
+            this.GoLeft();
+            readChar = this.GetCharAtPosition();
+            while (readChar.Equals('z'))
+            {
+                this.GoLeft(' ');
+                readChar = this.GetCharAtPosition();
+            }
+        }
+        
+        private void RemoveInput()
+        {
+            GoLeftUntil(' ');
+            char readChar = this.GetCharAtPosition();
+            while (!readChar.Equals('y'))
+            {
+                this.GoRight(' ');
+            }
+            this.GoRight(' ');
+        }
+
+        private void AddNumbers()
+        {
+            
         }
     }
 }
