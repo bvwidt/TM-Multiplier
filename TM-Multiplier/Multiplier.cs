@@ -245,9 +245,28 @@
         /// </param>
         private void ReplaceTapeChar(int position, char newTapeChar)
         {
-            if (position >= this.tape.Count)
+            // If a char is "deleted" / whitespace set at 
+            // the start or end of the tape, 
+            // decrease the size of the list
+            if (position <= 0 && newTapeChar.Equals(' '))
             {
-                this.tape.Add(newTapeChar);
+                for (int i = 0; i < this.tape.Count - 1; i++)
+                {
+                    this.tape[i] = this.tape[i + 1];
+                }
+
+                this.RemoveLastTapeChar();
+            }
+            else if (position >= this.tape.Count)
+            {
+                if (newTapeChar.Equals(' '))
+                {
+                    this.RemoveLastTapeChar();
+                }
+                else
+                {
+                    this.tape.Add(newTapeChar);
+                }
             }
             else
             {
@@ -454,10 +473,12 @@
         private void RemoveInput()
         {
             GoLeftUntil(' ');
+            this.GoRight();
             char readChar = this.GetCharAtPosition();
             while (!readChar.Equals('y'))
             {
                 this.GoRight(' ');
+                readChar = this.GetCharAtPosition();
             }
             this.GoRight(' ');
         }
@@ -465,6 +486,14 @@
         private void AddNumbers()
         {
             
+        }
+
+        private void RemoveLastTapeChar()
+        {
+            this.tape.RemoveAt(this.tape.Count - 1);
+
+            // Decrease current position because we "moved" the tape
+            this.currentState.Position--;
         }
     }
 }
