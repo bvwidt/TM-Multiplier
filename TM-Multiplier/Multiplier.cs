@@ -488,12 +488,21 @@
             
         }
 
+        /// <summary>
+        /// Removes the last element of the tape. If the tape is empty, 
+        /// nothing happens. 
+        /// The current state stays at the same position because
+        /// we "move" the tape.
+        /// </summary>
         private void RemoveLastTapeChar()
         {
-            this.tape.RemoveAt(this.tape.Count - 1);
+            if (this.tape.Count > 0)
+            {
+                this.tape.RemoveAt(this.tape.Count - 1);
 
-            // Decrease current position because we "moved" the tape
-            this.currentState.Position--;
+                // Decrease current position because we "moved" the tape
+                this.currentState.Position--;
+            }
         }
     }
 }
