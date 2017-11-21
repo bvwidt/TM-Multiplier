@@ -13,6 +13,12 @@
         /// </summary>
         private const string AcceptanceRegex = "[0-1]*x[0-1]*";
 
+        /// <summary>
+        /// The number of characters / cells that are displayed before the 
+        /// current state. If the tape is empty empty characters are inserted.
+        /// </summary>
+        private const int StateForeBackHead = 15;
+
         private readonly Mode mode;
 
         private int counter = 0;
@@ -57,6 +63,13 @@
         {
             StringBuilder stringBuilder = new StringBuilder(this.counter + ". ");
 
+            // Add 15 (whitespace) characters before state
+            int numberOfWhitespacesToPrint = StateForeBackHead - this.currentState.Position;
+            for (int i = 0; i < numberOfWhitespacesToPrint; i++)
+            {
+                stringBuilder.Append(' ');
+            }
+
             // Print the current state at the start
             if (this.currentState.Position < 0)
             {
@@ -78,6 +91,13 @@
             if (this.currentState.Position >= this.tape.Count)
             {
                 stringBuilder.Append(State.StateIdentifier);
+            }
+
+            // Add 15 (whitespace) characters after the state, if necessary
+            numberOfWhitespacesToPrint = StateForeBackHead - this.tape.Count - this.currentState.Position;
+            for (int i = 0; i < numberOfWhitespacesToPrint; i++)
+            {
+                stringBuilder.Append(' ');
             }
 
             Console.WriteLine(stringBuilder);
