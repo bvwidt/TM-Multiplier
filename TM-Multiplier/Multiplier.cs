@@ -13,6 +13,8 @@
         /// </summary>
         private const string AcceptanceRegex = "[0-1]*x[0-1]*";
 
+        private readonly Mode mode;
+
         /// <summary>
         /// Because a one-tape turing machine (TM) has equal capacity as
         /// </summary>
@@ -31,7 +33,7 @@
         /// A string containing two binary numbers 
         /// separated by an x which should be multiplied.
         /// </param>
-        public Multiplier(string tapeContent)
+        public Multiplier(string tapeContent, Mode mode)
         {
             // Write the input to the tape
             this.tape = new List<char>();
@@ -42,6 +44,8 @@
 
             // Set the current state at the beginning of the input on the tape
             this.currentState = new State(0, this.GetCharAtPosition(0));
+
+            this.mode = mode;
         }
 
         /// <summary>
@@ -158,6 +162,11 @@
         {
             this.currentState.Position++;
             this.RefreshCurrentStateTapeContent();
+
+            if (this.mode.Equals(Mode.Step))
+            {
+                this.PrintTapeWithState();
+            }
         }
 
         public void GoRight(char newTapeChar)
@@ -196,6 +205,11 @@
         {
             this.currentState.Position--;
             this.RefreshCurrentStateTapeContent();
+
+            if (this.mode.Equals(Mode.Step))
+            {
+                this.PrintTapeWithState();
+            }
         }
 
         public void GoLeft(char newTapeChar)
@@ -509,88 +523,97 @@
 
         private void AddNumbers()
         {
-            char readChar;
 
             // Mark the start of the tape content
             this.GoLeft();
             this.GoRight('s');
 
-            do
+            // Check if one number is on the tape only
+            this.GoRightUntil('y');
+            this.GoRight();
+            char readChar = this.GetCharAtPosition();
+
+            this.GoLeftUntil('s');
+
+            if (!readChar.Equals(' '))
             {
-                // Read first digit from right of first number
-                this.GoRightUntil('y');
-                this.GoLeft();
                 do
                 {
-                    readChar = this.GetCharAtPosition();
-                    this.GoRight(' ');
+                    // Read first digit from right of first number
                     this.GoRightUntil('y');
-                    this.GoRight();
-                    this.GoRightUntil(new[] { 'y', 'a', 'b' });
                     this.GoLeft();
-
-                    // Check if a carry is created (=1)
-                    if (readChar.Equals('0'))
+                    do
                     {
                         readChar = this.GetCharAtPosition();
-                        if (readChar.Equals('0'))
-                        {
-                            this.GoLeft('a');
-                        }
-                        else if (readChar.Equals('1'))
-                        {
-                            this.GoLeft('b');
-                        }
-                    }
-                    else if (readChar.Equals('1'))
-                    {
-                        readChar = this.GetCharAtPosition();
-                        if (readChar.Equals('0'))
-                        {
-                            // Mark the first digit from right as done
-                            this.GoLeft('b');
-                        }
-                        else if (readChar.Equals('1'))
-                        {
-                            // Mark the first digit from right as done
-                            this.GoLeft('a');
+                        this.GoRight(' ');
+                        this.GoRightUntil('y');
+                        this.GoRight();
+                        this.GoRightUntil(new[] { 'y', 'a', 'b' });
+                        this.GoLeft();
 
+                        // Check if a carry is created (=1)
+                        if (readChar.Equals('0'))
+                        {
                             readChar = this.GetCharAtPosition();
-                            while (readChar.Equals('1'))
+                            if (readChar.Equals('0'))
                             {
-                                this.GoLeft('0');
-                                readChar = this.GetCharAtPosition();
+                                this.GoLeft('a');
                             }
-                            this.GoLeft('1');
-
-                            // Move the "y" left because 
-                            // it has been overwritten before
-                            if (readChar.Equals('y'))
+                            else if (readChar.Equals('1'))
                             {
-                                this.GoLeft('y');
+                                this.GoLeft('b');
                             }
                         }
+                        else if (readChar.Equals('1'))
+                        {
+                            readChar = this.GetCharAtPosition();
+                            if (readChar.Equals('0'))
+                            {
+                                // Mark the first digit from right as done
+                                this.GoLeft('b');
+                            }
+                            else if (readChar.Equals('1'))
+                            {
+                                // Mark the first digit from right as done
+                                this.GoLeft('a');
+
+                                readChar = this.GetCharAtPosition();
+                                while (readChar.Equals('1'))
+                                {
+                                    this.GoLeft('0');
+                                    readChar = this.GetCharAtPosition();
+                                }
+                                this.GoLeft('1');
+
+                                // Move the "y" left because 
+                                // it has been overwritten before
+                                if (readChar.Equals('y'))
+                                {
+                                    this.GoLeft('y');
+                                }
+                            }
+                        }
+
+                        this.GoLeftUntil('s');
+                        this.GoRightUntil(' ');
+                        this.GoLeft();
+                        readChar = this.GetCharAtPosition();
                     }
+                    while (!readChar.Equals('s'));
 
-                    this.GoLeftUntil('s');
-                    this.GoRightUntil(' ');
-                    this.GoLeft();
+                    this.ResetStartingPoint();
+                    this.ReplacePlaceholders();
+
+                    // Check if just one number is still on the tape
+                    this.GoRightUntil(new[] { 'y', 's' });
+                    this.GoRight();
                     readChar = this.GetCharAtPosition();
+
+                    // Return to the starting point
+                    this.GoLeftUntil('s');
                 }
-                while (!readChar.Equals('s'));
-
-                this.ResetStartingPoint();
-                this.ReplacePlaceholders();
-
-                // Check if just one number is still on the tape
-                this.GoRightUntil(new[] { 'y', 's' });
-                this.GoRight();
-                readChar = this.GetCharAtPosition();
-
-                // Return to the starting point
-                this.GoLeftUntil('s');
+                while (!readChar.Equals(' '));
             }
-            while (!readChar.Equals(' '));
 
             this.CleanUp();
         }
