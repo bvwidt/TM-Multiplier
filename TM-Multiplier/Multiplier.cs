@@ -145,7 +145,10 @@
             this.CorrectTennerPlaceHolders();
 
             // 5. Remove input
-            RemoveInput();
+            this.RemoveInput();
+
+            // 6. Add the numbers
+            this.AddNumbers();
         }
 
         /// <summary>
@@ -159,7 +162,7 @@
 
         public void GoRight(char newTapeChar)
         {
-            ReplaceTapeChar(this.currentState.Position, newTapeChar);
+            this.ReplaceTapeChar(this.currentState.Position, newTapeChar);
             this.GoRight();
         }
 
@@ -245,11 +248,32 @@
         /// </param>
         private void ReplaceTapeChar(int position, char newTapeChar)
         {
-            // If a char is "deleted" / whitespace set at 
-            // the start or end of the tape, 
-            // decrease the size of the list
-            if (position <= 0 && newTapeChar.Equals(' '))
+            // If a char is inserted at the start of the tape content
+            if (position < 0 && !newTapeChar.Equals(' '))
             {
+                for (int i = this.tape.Count; i > 0; i--)
+                {
+                    if (i == this.tape.Count)
+                    {
+                        this.tape.Add(this.tape[i - 1]);
+                    }
+                    else
+                    {
+                        this.tape[i] = this.tape[i - 1];
+                    }
+                }
+
+                this.tape[0] = newTapeChar;
+
+                // Update current state because the tape has "moved"
+                this.currentState.Position++;
+                this.RefreshCurrentStateTapeContent();
+            }
+            else if (position <= 0 && newTapeChar.Equals(' '))
+            {
+                // If a char is "deleted" / whitespace set at 
+                // the start or end of the tape, 
+                // decrease the size of the list
                 for (int i = 0; i < this.tape.Count - 1; i++)
                 {
                     this.tape[i] = this.tape[i + 1];
@@ -485,7 +509,90 @@
 
         private void AddNumbers()
         {
-            
+            char readChar;
+
+            // Mark the start of the tape content
+            this.GoLeft();
+            this.GoRight('s');
+
+            do
+            {
+                // Read first digit from right of first number
+                this.GoRightUntil('y');
+                this.GoLeft();
+                do
+                {
+                    readChar = this.GetCharAtPosition();
+                    this.GoRight(' ');
+                    this.GoRightUntil('y');
+                    this.GoRight();
+                    this.GoRightUntil(new[] { 'y', 'a', 'b' });
+                    this.GoLeft();
+
+                    // Check if a carry is created (=1)
+                    if (readChar.Equals('0'))
+                    {
+                        readChar = this.GetCharAtPosition();
+                        if (readChar.Equals('0'))
+                        {
+                            this.GoLeft('a');
+                        }
+                        else if (readChar.Equals('1'))
+                        {
+                            this.GoLeft('b');
+                        }
+                    }
+                    else if (readChar.Equals('1'))
+                    {
+                        readChar = this.GetCharAtPosition();
+                        if (readChar.Equals('0'))
+                        {
+                            // Mark the first digit from right as done
+                            this.GoLeft('b');
+                        }
+                        else if (readChar.Equals('1'))
+                        {
+                            // Mark the first digit from right as done
+                            this.GoLeft('a');
+
+                            readChar = this.GetCharAtPosition();
+                            while (readChar.Equals('1'))
+                            {
+                                this.GoLeft('0');
+                                readChar = this.GetCharAtPosition();
+                            }
+                            this.GoLeft('1');
+
+                            // Move the "y" left because 
+                            // it has been overwritten before
+                            if (readChar.Equals('y'))
+                            {
+                                this.GoLeft('y');
+                            }
+                        }
+                    }
+
+                    this.GoLeftUntil('s');
+                    this.GoRightUntil(' ');
+                    this.GoLeft();
+                    readChar = this.GetCharAtPosition();
+                }
+                while (!readChar.Equals('s'));
+
+                this.ResetStartingPoint();
+                this.ReplacePlaceholders();
+
+                // Check if just one number is still on the tape
+                this.GoRightUntil(new[] { 'y', 's' });
+                this.GoRight();
+                readChar = this.GetCharAtPosition();
+
+                // Return to the starting point
+                this.GoLeftUntil('s');
+            }
+            while (!readChar.Equals(' '));
+
+            this.CleanUp();
         }
 
         /// <summary>
@@ -503,6 +610,42 @@
                 // Decrease current position because we "moved" the tape
                 this.currentState.Position--;
             }
+        }
+
+        /// <summary>
+        /// Moves the current starting point ("s") to the beginning of 
+        /// the next number(indicated by an "y").
+        /// </summary>
+        private void ResetStartingPoint()
+        {
+            this.GoRight(' ');
+            this.GoRightUntil('y');
+            this.GoRight('s');
+        }
+
+        /// <summary>
+        /// Replaces all "a"s and "b"s (which represent zeros and ones) 
+        /// on the right side of the current state.
+        /// </summary>
+        private void ReplacePlaceholders()
+        {
+            this.GoRightUntil(new[] { 'a', 'b' });
+            char readChar = this.GetCharAtPosition();
+            while (readChar.Equals('a') || readChar.Equals('b'))
+            {
+                this.GoRight(readChar.Equals('a') ? '0' : '1');
+                readChar = this.GetCharAtPosition();
+            }
+        }
+
+        private void CleanUp()
+        {
+            // Remove the starting point
+            this.GoRight(' ');
+
+            // Remove the last "y"
+            this.GoRightUntil('y');
+            this.GoRight(' ');
         }
     }
 }
