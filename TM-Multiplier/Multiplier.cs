@@ -112,6 +112,20 @@
         /// </summary>
         public void Calculate()
         {
+            // Check if something is multiplied by zero
+            this.GoRight();
+            char readChar = this.GetCharAtPosition();
+            if (readChar.Equals('x'))
+            {
+                this.GoLeft();
+                readChar = this.GetCharAtPosition();
+                if (readChar.Equals('0'))
+                {
+                    this.ZeroMultiplication();
+                    return;
+                }
+            }
+
             // Append an y to identify when the input ends
             this.AppendY();
 
@@ -124,7 +138,7 @@
             // 3. Multiply (/copy) second number (/ factor) with each
             // digit of the first number (/ factor) with 
             // correct tenner multiplicity
-            char readChar = this.GetCharAtPosition();
+            readChar = this.GetCharAtPosition();
             do
             {
                 this.GoRight('d');
@@ -523,7 +537,6 @@
 
         private void AddNumbers()
         {
-
             // Mark the start of the tape content
             this.GoLeft();
             this.GoRight('s');
@@ -669,6 +682,17 @@
             // Remove the last "y"
             this.GoRightUntil('y');
             this.GoRight(' ');
+        }
+
+        private void ZeroMultiplication()
+        {
+            char readChar = this.GetCharAtPosition();
+            while (!readChar.Equals(' '))
+            {
+                this.GoRight(' ');
+                readChar = this.GetCharAtPosition();
+            }
+            this.GoLeft('0');
         }
     }
 }
