@@ -15,6 +15,8 @@
 
         private readonly Mode mode;
 
+        private int counter = 0;
+
         /// <summary>
         /// Because a one-tape turing machine (TM) has equal capacity as
         /// </summary>
@@ -53,7 +55,7 @@
         /// </summary>
         public void PrintTapeWithState()
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            StringBuilder stringBuilder = new StringBuilder(this.counter + ". ");
 
             // Print the current state at the start
             if (this.currentState.Position < 0)
@@ -176,6 +178,7 @@
         {
             this.currentState.Position++;
             this.RefreshCurrentStateTapeContent();
+            this.counter++;
 
             if (this.mode.Equals(Mode.Step))
             {
@@ -219,6 +222,7 @@
         {
             this.currentState.Position--;
             this.RefreshCurrentStateTapeContent();
+            this.counter++;
 
             if (this.mode.Equals(Mode.Step))
             {

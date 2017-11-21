@@ -26,7 +26,7 @@
 
             foreach (TestCalculation testCalculation in tests)
             {
-                Multiplier multiplier = new Multiplier(testCalculation.TapeContent);
+                Multiplier multiplier = new Multiplier(testCalculation.TapeContent, Mode.Result);
                 multiplier.Calculate();
                 Assert.AreEqual(testCalculation.Output, multiplier.GetTapeContent());
             }
