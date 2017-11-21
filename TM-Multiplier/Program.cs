@@ -6,7 +6,7 @@ namespace TM_Multiplier
     {
         static void Main(string[] args)
         {
-            Multiplier m = new Multiplier("0x101", Mode.Result);
+            Multiplier m = new Multiplier("0x10001", Mode.Step);
             m.PrintTapeWithState();
             m.Calculate();
             m.PrintTapeWithState();

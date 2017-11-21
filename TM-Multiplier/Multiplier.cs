@@ -14,6 +14,11 @@
         private const string AcceptanceRegex = "[0-1]*x[0-1]*";
 
         /// <summary>
+        /// The character that is used to display an empty tape cell.
+        /// </summary>
+        private const char WhitespaceCharacter = '_';
+
+        /// <summary>
         /// The number of characters / cells that are displayed before the 
         /// current state. If the tape is empty empty characters are inserted.
         /// </summary>
@@ -64,10 +69,12 @@
             StringBuilder stringBuilder = new StringBuilder(this.counter + ". ");
 
             // Add 15 (whitespace) characters before state
-            int numberOfWhitespacesToPrint = StateForeBackHead - this.currentState.Position;
+            int numberOfWhitespacesToPrint = 
+                StateForeBackHead 
+                - (this.currentState.Position > 0 ? this.currentState.Position : 0);
             for (int i = 0; i < numberOfWhitespacesToPrint; i++)
             {
-                stringBuilder.Append(' ');
+                stringBuilder.Append(WhitespaceCharacter);
             }
 
             // Print the current state at the start
@@ -94,10 +101,13 @@
             }
 
             // Add 15 (whitespace) characters after the state, if necessary
-            numberOfWhitespacesToPrint = StateForeBackHead - this.tape.Count - this.currentState.Position;
+            numberOfWhitespacesToPrint = 
+                StateForeBackHead 
+                - this.tape.Count 
+                - (this.currentState.Position > 0 ? this.currentState.Position : 0);
             for (int i = 0; i < numberOfWhitespacesToPrint; i++)
             {
-                stringBuilder.Append(' ');
+                stringBuilder.Append(WhitespaceCharacter);
             }
 
             Console.WriteLine(stringBuilder);
@@ -174,10 +184,10 @@
                 {
                     this.CopySecondFactor();
                 }
-                this.GoLeftUntil(new[] { '0', '1', ' ' });
+                this.GoLeftUntil(new[] { '0', '1', WhitespaceCharacter });
                 readChar = this.GetCharAtPosition();
             }
-            while (!readChar.Equals(' '));
+            while (!readChar.Equals(WhitespaceCharacter));
 
             // 4. Replace "z" and "s" by 0
             // E.g. ...yss110y... ==> ...y11000y...
@@ -301,7 +311,7 @@
         private void ReplaceTapeChar(int position, char newTapeChar)
         {
             // If a char is inserted at the start of the tape content
-            if (position < 0 && !newTapeChar.Equals(' '))
+            if (position < 0 && !newTapeChar.Equals(WhitespaceCharacter))
             {
                 for (int i = this.tape.Count; i > 0; i--)
                 {
@@ -321,7 +331,7 @@
                 this.currentState.Position++;
                 this.RefreshCurrentStateTapeContent();
             }
-            else if (position <= 0 && newTapeChar.Equals(' '))
+            else if (position <= 0 && newTapeChar.Equals(WhitespaceCharacter))
             {
                 // If a char is "deleted" / whitespace set at 
                 // the start or end of the tape, 
@@ -335,7 +345,7 @@
             }
             else if (position >= this.tape.Count)
             {
-                if (newTapeChar.Equals(' '))
+                if (newTapeChar.Equals(WhitespaceCharacter))
                 {
                     this.RemoveLastTapeChar();
                 }
@@ -393,10 +403,10 @@
         private char GetCharAtPosition(int position)
         {
             // When the current state has reached the end of the input
-            // read an empty space ' '.
+            // read an empty space WhitespaceCharacter.
             if (position < 0 || position >= this.tape.Count)
             {
-                return ' ';
+                return WhitespaceCharacter;
             }
 
             return this.tape[position];
@@ -416,14 +426,14 @@
         /// </summary>
         private void AppendY()
         {
-            this.GoRightUntil(' ');
+            this.GoRightUntil(WhitespaceCharacter);
             this.GoLeft('y');
-            this.GoLeftUntil(' ');
+            this.GoLeftUntil(WhitespaceCharacter);
         }
 
         private void AppendZ()
         {
-            this.GoRightUntil(new[] { 'z', ' ' });
+            this.GoRightUntil(new[] { 'z', WhitespaceCharacter });
             char readChar = this.GetCharAtPosition();
             while (readChar.Equals('z'))
             {
@@ -445,7 +455,7 @@
             do
             {
                 this.GoRight(readChar.Equals('0') ? 'a' : 'b');
-                this.GoRightUntil(' ');
+                this.GoRightUntil(WhitespaceCharacter);
                 this.GoLeft(readChar);
                 this.GoLeftUntil(new[] { 'a', 'b' });
                 this.GoRight();
@@ -455,7 +465,7 @@
 
             // Move to the end and mark it with an "y"
             // then return to next left "y"
-            this.GoRightUntil(' ');
+            this.GoRightUntil(WhitespaceCharacter);
             this.GoLeft('y');
             this.GoLeftUntil('y');
 
@@ -471,7 +481,7 @@
             if (readChar.Equals('z'))
             {
                 this.GoRight('s');
-                this.GoRightUntil(' ');
+                this.GoRightUntil(WhitespaceCharacter);
                 this.GoLeft('z');
 
                 // Go left to the y after next
@@ -487,7 +497,7 @@
             }
             else
             {
-                this.GoRightUntil(' ');
+                this.GoRightUntil(WhitespaceCharacter);
                 this.ReplaceTapeChar('z');
             }
         }
@@ -513,7 +523,7 @@
             // Read the first character after the y
             // If it is an s (tenner multiplier), move the number one left and 
             // append an 0.
-            this.GoRightUntil(new[] { 'y', ' ' });
+            this.GoRightUntil(new[] { 'y', WhitespaceCharacter });
             char readChar = this.GetCharAtPosition();
             if (readChar.Equals('y'))
             {
@@ -541,22 +551,22 @@
             readChar = this.GetCharAtPosition();
             while (readChar.Equals('z'))
             {
-                this.GoLeft(' ');
+                this.GoLeft(WhitespaceCharacter);
                 readChar = this.GetCharAtPosition();
             }
         }
         
         private void RemoveInput()
         {
-            GoLeftUntil(' ');
+            GoLeftUntil(WhitespaceCharacter);
             this.GoRight();
             char readChar = this.GetCharAtPosition();
             while (!readChar.Equals('y'))
             {
-                this.GoRight(' ');
+                this.GoRight(WhitespaceCharacter);
                 readChar = this.GetCharAtPosition();
             }
-            this.GoRight(' ');
+            this.GoRight(WhitespaceCharacter);
         }
 
         private void AddNumbers()
@@ -572,7 +582,7 @@
 
             this.GoLeftUntil('s');
 
-            if (!readChar.Equals(' '))
+            if (!readChar.Equals(WhitespaceCharacter))
             {
                 do
                 {
@@ -582,7 +592,7 @@
                     do
                     {
                         readChar = this.GetCharAtPosition();
-                        this.GoRight(' ');
+                        this.GoRight(WhitespaceCharacter);
                         this.GoRightUntil('y');
                         this.GoRight();
                         this.GoRightUntil(new[] { 'y', 'a', 'b' });
@@ -632,7 +642,7 @@
                         }
 
                         this.GoLeftUntil('s');
-                        this.GoRightUntil(' ');
+                        this.GoRightUntil(WhitespaceCharacter);
                         this.GoLeft();
                         readChar = this.GetCharAtPosition();
                     }
@@ -649,7 +659,7 @@
                     // Return to the starting point
                     this.GoLeftUntil('s');
                 }
-                while (!readChar.Equals(' '));
+                while (!readChar.Equals(WhitespaceCharacter));
             }
 
             this.CleanUp();
@@ -678,7 +688,7 @@
         /// </summary>
         private void ResetStartingPoint()
         {
-            this.GoRight(' ');
+            this.GoRight(WhitespaceCharacter);
             this.GoRightUntil('y');
             this.GoRight('s');
         }
@@ -701,19 +711,19 @@
         private void CleanUp()
         {
             // Remove the starting point
-            this.GoRight(' ');
+            this.GoRight(WhitespaceCharacter);
 
             // Remove the last "y"
             this.GoRightUntil('y');
-            this.GoRight(' ');
+            this.GoRight(WhitespaceCharacter);
         }
 
         private void ZeroMultiplication()
         {
             char readChar = this.GetCharAtPosition();
-            while (!readChar.Equals(' '))
+            while (!readChar.Equals(WhitespaceCharacter))
             {
-                this.GoRight(' ');
+                this.GoRight(WhitespaceCharacter);
                 readChar = this.GetCharAtPosition();
             }
             this.GoLeft('0');
