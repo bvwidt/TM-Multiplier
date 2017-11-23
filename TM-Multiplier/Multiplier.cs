@@ -6,17 +6,12 @@
     using System.Text;
     using System.Text.RegularExpressions;
 
-    public class Multiplier
+    public class Multiplier : TuringMachine
     {
         /// <summary>
         /// The regular expression that the given word must satisfy.
         /// </summary>
         private const string AcceptanceRegex = "[0-1]*x[0-1]*";
-
-        /// <summary>
-        /// The character that is used to display an empty tape cell.
-        /// </summary>
-        private const char WhitespaceCharacter = '_';
 
         /// <summary>
         /// The number of characters / cells that are displayed before the 
@@ -109,7 +104,7 @@
             {
                 stringBuilder.Append(WhitespaceCharacter);
             }
-
+            
             Console.WriteLine(stringBuilder);
         }
 
