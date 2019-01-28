@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{714FF910-4516-4B97-B917-76249CF899EF}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>TM_Multiplier</RootNamespace>
+    <RootNamespace>bvwidt.TMMultiplier</RootNamespace>
     <AssemblyName>TM-Multiplier</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
